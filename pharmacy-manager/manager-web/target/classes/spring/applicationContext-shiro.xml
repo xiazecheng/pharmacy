@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+    <!-- 定义Realm -->
+    <bean id="myRealm" class="com.yaojie.shiro.realm.MyRealm" />
+    <!-- 自定义filter -->
+    <bean id="roles" class="com.yaojie.shiro.filter.MyRoleFilter" />
+    <bean id="perms" class="com.yaojie.shiro.filter.MyURLPermissionFilter" />
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <property name="realm" ref="myRealm"/>
+    </bean>
+
+    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+        <property name="securityManager" ref="securityManager"/>
+        <property name="loginUrl" value="/user/login" />
+        <property name="unauthorizedUrl" value="/unauth"  />
+        <property name="filters">
+            <map>
+                <entry key="roles" value-ref="roles" />
+                <entry key="perms" value-ref="perms" />
+            </map>
+        </property>
+        <!-- 过滤链定义 -->
+        <property name="filterChainDefinitions">
+            <value>
+                /user/login = anon <!--anon:anonymous, 匿名的, 不需要权限 -->
+                /user/logout = logout
+                /my/customer/** = roles["user"]   <!-- 需要名称为user的角色权限-->
+                /customer/**=perms
+                /rest/**=roles["admin"]
+            </value>
+        </property>
+    </bean>
+    <!-- Shiro生命周期处理器 -->
+    <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
+</beans>

@@ -1,0 +1,9 @@
+package com.yaojie.service;
+
+/**
+ * Author  知秋
+ * Created by kauw on 2016/12/8.
+ */
+public interface WorkCallback<T,E> {
+    T doWorkCallback(E e);
+}
